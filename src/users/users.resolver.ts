@@ -3,7 +3,7 @@ import {UsersService} from './users.service';
 import {User} from './entities/user.entity';
 import {CreateUserInput} from './dto/create-user.input';
 import {UpdateUserInput} from './dto/update-user.input';
-import {BadRequestException, UseGuards} from '@nestjs/common';
+import { UseGuards} from '@nestjs/common';
 import {CurrentUser} from '../auth/current-user.decorator';
 import {TokenPayload} from '../auth/token-payload.interface';
 import {JwtAccessAuthGuard} from '../auth/guards/jwt-access-auth.guard';
@@ -15,10 +15,6 @@ export class UsersResolver {
 
 	@Mutation(() => User)
 	async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-		const existUser = await this.usersService.findOneByEmail(createUserInput.email);
-		if (existUser) {
-			throw new BadRequestException('User already exists');
-		}
 		return this.usersService.create(createUserInput);
 	}
 
