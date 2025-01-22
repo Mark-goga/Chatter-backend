@@ -15,10 +15,6 @@ export class UsersResolver {
 
 	@Mutation(() => User)
 	async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-		const existUser = await this.usersService.findOneByEmail(createUserInput.email);
-		if (existUser) {
-			throw new BadRequestException('User already exists');
-		}
 		return this.usersService.create(createUserInput);
 	}
 
