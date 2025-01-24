@@ -3,6 +3,7 @@ import { User } from '../users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { TokenPayload } from './token-payload.interface';
 import { JwtService } from '@nestjs/jwt';
+import {Response} from 'express';
 
 @Injectable()
 export class AuthService {
@@ -39,5 +40,10 @@ export class AuthService {
 
     return { refreshToken, expires, accessToken };
   }
-
+  logout(res: Response,) {
+    res.cookie('Authentication', '', {
+      httpOnly: true,
+      expires: new Date(),
+    });
+  }
 }

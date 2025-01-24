@@ -6,7 +6,7 @@ import {UpdateUserInput} from './dto/update-user.input';
 import { UseGuards} from '@nestjs/common';
 import {CurrentUser} from '../auth/current-user.decorator';
 import {TokenPayload} from '../auth/token-payload.interface';
-import {JwtAccessAuthGuard} from '../auth/guards/jwt-access-auth.guard';
+import {GqlAuthGuard} from "../auth/guards/gql-auth.guard";
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -19,20 +19,20 @@ export class UsersResolver {
 	}
 
 	@Query(() => [User], {name: 'users'})
-	@UseGuards(JwtAccessAuthGuard)
+	@UseGuards(GqlAuthGuard)
 	findAll(
 	) {
 		return this.usersService.findAll();
 	}
 
 	@Query(() => User, {name: 'user'})
-	@UseGuards(JwtAccessAuthGuard)
+	@UseGuards(GqlAuthGuard)
 	findOne(@Args('_id') _id: string) {
 		return this.usersService.findOne(_id);
 	}
 
 	@Mutation(() => User)
-	@UseGuards(JwtAccessAuthGuard)
+	@UseGuards(GqlAuthGuard)
 	updateUser(
 		@Args('updateUserInput') updateUserInput: UpdateUserInput,
 		@CurrentUser() user: TokenPayload,
@@ -41,8 +41,14 @@ export class UsersResolver {
 	}
 
 	@Mutation(() => User)
-	@UseGuards(JwtAccessAuthGuard)
+	@UseGuards(GqlAuthGuard)
 	removeUser(@CurrentUser() user: TokenPayload) {
 		return this.usersService.remove(user._id);
+	}
+
+	@Query(() => User, {name: 'me'})
+	@UseGuards(GqlAuthGuard)
+	getMe(@CurrentUser() user: TokenPayload) {
+		return user;
 	}
 }

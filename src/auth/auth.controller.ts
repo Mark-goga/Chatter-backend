@@ -6,7 +6,6 @@ import { User } from '../users/entities/user.entity';
 import { AuthService } from './auth.service';
 import {  JwtRefreshAuthGuard } from './guards/jwt-auth.guard';
 import { TokenPayload } from './token-payload.interface';
-import { JwtAccessAuthGuard } from './guards/jwt-access-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -43,11 +42,8 @@ export class AuthController {
     this.tokenResponse(token, res, 'refresh success');
   }
 
-  @Post('protected')
-  @UseGuards(JwtAccessAuthGuard)
-  async protectedRoute(
-    @CurrentUser() user: TokenPayload,
-  ) {
-    return { message: 'You have access to this route', token: user };
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) res: Response) {
+    return  this.authService.logout(res);
   }
 }
