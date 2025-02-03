@@ -13,7 +13,8 @@ export class ChatsService {
     return this.chatsRepository.create({
       ...createChatInput,
       userId,
-      userIds:createChatInput.userIds || []
+      userIds:createChatInput.userIds || [],
+      messages: []
     });
   }
 
