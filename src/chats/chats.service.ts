@@ -18,7 +18,7 @@ export class ChatsService {
   }
 
   findAll() {
-    return `This action returns all chats`;
+    return this.chatsRepository.find({});
   }
 
   findOne(id: number) {
