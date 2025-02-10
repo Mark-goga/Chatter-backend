@@ -46,6 +46,6 @@ export class MessagesResolver {
   messageCreated(
     @Args() _messageCreatedArgs: MessageCreatedArgs,
   ) {
-    this.pubSub.asyncIterableIterator(MESSAGE_CREATED)
+    return this.pubSub.asyncIterableIterator(MESSAGE_CREATED)
   }
 }

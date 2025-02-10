@@ -4,7 +4,7 @@ import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {Message} from "../messages/entities/message.entity";
 
 @ObjectType()
-@Schema()
+@Schema({versionKey: false})
 export class Chat extends AbstractEntity {
 	@Field()
 	@Prop()
