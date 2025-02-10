@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { User } from '../users/entities/user.entity';
-import { ConfigService } from '@nestjs/config';
-import { TokenPayload } from './token-payload.interface';
-import { JwtService } from '@nestjs/jwt';
-import {Response} from 'express';
+import {Injectable} from '@nestjs/common';
+import {User} from '../users/entities/user.entity';
+import {ConfigService} from '@nestjs/config';
+import {TokenPayload} from './token-payload.interface';
+import {JwtService} from '@nestjs/jwt';
+import {Request, Response} from 'express';
 
 @Injectable()
 export class AuthService {
@@ -40,6 +40,15 @@ export class AuthService {
 
     return { refreshToken, expires, accessToken };
   }
+
+  verifyWs(request: Request): TokenPayload {
+    const cookie: string[] = request.headers.cookie.split('; ');
+    const authCookie = cookie.find((cookie) => cookie.includes('Authentication'));
+    const jwt = authCookie.split('Authentication=')[1];
+    const secretKey = this.configService.getOrThrow('JWT_REFRESH_SECRET');
+    return this.jwtService.verify<TokenPayload>(jwt, {secret: secretKey});
+  }
+
   logout(res: Response,) {
     res.cookie('Authentication', '', {
       httpOnly: true,

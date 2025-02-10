@@ -11,7 +11,6 @@ import { JwtAccessAuthGuard } from './guards/jwt-access-auth.guard';
 @Module({
   imports: [
     forwardRef(() => UsersModule),
-    // UsersModule,
     // JwtModule.registerAsync({
     //   useFactory: (configService: ConfigService) => ({
     //     secret: configService.getOrThrow('JWT_REFRESH_SECRET'),
@@ -25,6 +24,6 @@ import { JwtAccessAuthGuard } from './guards/jwt-access-auth.guard';
   ],
   providers: [AuthService, LocalStrategy, JwtRefreshStrategy, JwtAccessStrategy, JwtAccessAuthGuard],
   controllers: [AuthController],
-  exports: [JwtAccessAuthGuard, JwtAccessStrategy],
+  exports: [JwtAccessAuthGuard, JwtAccessStrategy, AuthService],
 })
 export class AuthModule {}
