@@ -9,6 +9,10 @@ export class User extends AbstractEntity {
   @Field()
   email: string;
 
+  @Prop()
+  @Field()
+  username: string;
+
   @Prop({type: String})
   password: string;
 }

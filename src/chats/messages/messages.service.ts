@@ -59,16 +59,13 @@ export class MessagesService {
 					as: 'user'
 				},
 			},
-			{$unwind: 'user'},
+			{$unwind: '$user'},
 			{$unset: 'userId'},
 			{$set: {chatId}}
 		]);
 	}
 
-	async messageCreated({chatId}: MessageCreatedArgs) {
-		await this.ChatsRepository.findOne({
-			_id: chatId,
-		}, 'Chat');
+	async messageCreated() {
 		return this.pubSub.asyncIterableIterator(MESSAGE_CREATED);
 	}
 }
