@@ -4,11 +4,9 @@ import {Message} from "./entities/message.entity";
 import {CreateMessageInput} from "./dto/create-message.input";
 import {CurrentUser} from "../../auth/current-user.decorator";
 import {TokenPayload} from "../../auth/token-payload.interface";
-import {Inject, UseGuards} from "@nestjs/common";
+import { UseGuards} from "@nestjs/common";
 import {GqlAuthGuard} from "../../auth/guards/gql-auth.guard";
 import {GetMessagesArgs} from "./dto/get-message.args";
-import {PUB_SUB} from "../../common/constants/injection-token";
-import {PubSub} from "graphql-subscriptions";
 import {MessageCreatedArgs} from "./dto/message-created.args";
 
 @Resolver(() => Message)
@@ -16,7 +14,6 @@ export class MessagesResolver {
 
   constructor(
     private readonly messagesService: MessagesService,
-    @Inject(PUB_SUB) private readonly  pubSub: PubSub
   ) {}
 
   @Mutation(() => Message)
@@ -24,7 +21,7 @@ export class MessagesResolver {
   async createMessage(
     @Args('createMessageInput') createMessageInput: CreateMessageInput,
     @CurrentUser() user: TokenPayload,
-  ) {
+  ): Promise<Message> {
     return this.messagesService.createMessage(createMessageInput, user._id)
   }
 
@@ -32,9 +29,8 @@ export class MessagesResolver {
   @UseGuards(GqlAuthGuard)
   async getMessages(
     @Args() getMessagesArgs: GetMessagesArgs,
-    @CurrentUser() user: TokenPayload,
-  ) {
-    return this.messagesService.getMessages(getMessagesArgs, user._id);
+  ): Promise<Message[]> {
+    return this.messagesService.getMessages(getMessagesArgs);
   }
 
   @Subscription(() => Message, {
@@ -48,8 +44,7 @@ export class MessagesResolver {
   })
   messageCreated(
     @Args() messageCreatedArgs: MessageCreatedArgs,
-    @CurrentUser() user: TokenPayload,
   ) {
-    return this.messagesService.messageCreated(messageCreatedArgs, user._id);
+    return this.messagesService.messageCreated(messageCreatedArgs);
   }
 }

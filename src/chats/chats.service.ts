@@ -9,33 +9,17 @@ export class ChatsService {
   constructor(private readonly chatsRepository: ChatsRepository) {
   }
 
-  userChatFilter(userId: string) {
-    return {
-      $or: [
-        {userId},
-        {
-          userIds: {
-            $in: [userId]
-          },
-        },
-        {isPrivate: false},
-      ]
-    }
-  }
 
   create(createChatInput: CreateChatInput, userId: string) {
     return this.chatsRepository.create({
       ...createChatInput,
       userId,
-      userIds:createChatInput.userIds || [],
       messages: []
     });
   }
 
-  findAll(userId: string) {
-    return this.chatsRepository.find({
-      ...this.userChatFilter(userId),
-    });
+  findAll() {
+    return this.chatsRepository.find({});
   }
 
   async findOne(_id: string) {

@@ -8,53 +8,57 @@ import {PUB_SUB} from "../../common/constants/injection-token";
 import {PubSub} from "graphql-subscriptions";
 import {MESSAGE_CREATED} from "./constants/pubsub-triggers";
 import {MessageCreatedArgs} from "./dto/message-created.args";
-import {ChatsService} from "../chats.service";
+import {MessageDocument} from "./entities/message.document";
+import {UsersService} from "../../users/users.service";
 
 @Injectable()
 export class MessagesService {
 	constructor(
 		private readonly ChatsRepository: ChatsRepository,
-		private readonly chatsService: ChatsService,
+		private readonly usersService: UsersService,
 		@Inject(PUB_SUB) private readonly pubSub: PubSub,
-		) {}
+	) {}
 
 	async createMessage({content, chatId}: CreateMessageInput, userId: string) {
-		const message: Message = {
+		const messageDocument: MessageDocument = {
 			content,
-			chatId,
-			userId,
+			userId: new Types.ObjectId(userId),
 			createdAt: new Date(),
 			_id: new Types.ObjectId(),
 		}
 		await this.ChatsRepository.findOneAndUpdate({
 			_id: chatId,
-			...this.chatsService.userChatFilter(userId),
 		}, {
 			$push: {
-				messages: message
+				messages: messageDocument,
 			}
 		});
+
+		const message: Message = {
+			...messageDocument,
+			chatId,
+			user: await this.usersService.findOne(userId),
+		};
+
 		await this.pubSub.publish(MESSAGE_CREATED, {
 			messageCreated: message,
 		})
 		return message;
 	}
 
-	async getMessages({chatId}: GetMessagesArgs, userId: string) {
+	async getMessages({chatId}: GetMessagesArgs) {
 		return (
 			await this.ChatsRepository.findOne(
 				{
 					_id: chatId,
-					...this.chatsService.userChatFilter(userId),
 				},
 				'Chat')
 		).messages;
 	}
 
-	async messageCreated({chatId}: MessageCreatedArgs, userId: string) {
+	async messageCreated({chatId}: MessageCreatedArgs) {
 		await this.ChatsRepository.findOne({
 			_id: chatId,
-			...this.chatsService.userChatFilter(userId),
 		}, 'Chat');
 		return this.pubSub.asyncIterableIterator(MESSAGE_CREATED);
 	}
