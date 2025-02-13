@@ -46,7 +46,7 @@ export class MessagesService {
 	}
 
 	async getMessages({chatId, limit, skip}: GetMessagesArgs) {
-		return this.ChatsRepository.model.aggregate([
+		const messages = await this.ChatsRepository.model.aggregate([
 			{$match: {_id: new Types.ObjectId(chatId)}},
 			{$unwind: '$messages'},
 			{$replaceRoot: {newRoot: '$messages'}},
@@ -65,6 +65,10 @@ export class MessagesService {
 			{$unset: 'userId'},
 			{$set: {chatId}}
 		]);
+		for (const message of messages) {
+			message.user = await this.usersService.toEntity(message.user)
+		}
+		return messages;
 	}
 
 	async messageCreated() {
