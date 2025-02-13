@@ -58,11 +58,15 @@ export class UsersService {
 
   async uploadImage(file: Buffer, userId: string) {
     const bucket = USERS_BUCKET;
+    const key = `${userId}.${USERS_IMAGE_FILE_EXTENSION}`;
+
     await this.s3Service.upload({
       key: `${userId}.${USERS_IMAGE_FILE_EXTENSION}`,
       bucket,
       file,
-    })
+    });
+
+    return await this.s3Service.getSignedUrlPhoto({bucket, key})
   }
 
   async remove(_id: string) {

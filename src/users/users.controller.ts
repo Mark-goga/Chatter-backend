@@ -28,13 +28,15 @@ export class UsersController {
 			new ParseFilePipe({
 				validators: [
 					new MaxFileSizeValidator({maxSize: 100000}),
-					new FileTypeValidator({fileType: "image/jpg"})
+					new FileTypeValidator({fileType: "image/jpeg"})
 				],
 			}),
 		) file: Express.Multer.File,
 		@CurrentUser() user: TokenPayload,
 	) {
-		return this.usersService.uploadImage(file.buffer, user._id);
+		return {
+			avatar: await this.usersService.uploadImage(file.buffer, user._id),
+		};
 	}
 
 }
