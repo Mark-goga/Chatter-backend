@@ -76,7 +76,7 @@ export class MessagesService {
 			await this.ChatsRepository.model.aggregate([
 			{$match: {_id: new Types.ObjectId(chatId)}},
 			{$unwind: '$messages'},
-			{$count: '$messages'}
+			{$count: 'messages'}
 		])
 		)[0];
 

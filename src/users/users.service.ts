@@ -3,11 +3,16 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UsersRepository } from './users.repository';
+import {S3Service} from "../common/s3/s3.service";
+import {USERS_BUCKET, USERS_IMAGE_FILE_EXTENSION} from "./users.constants";
 
 @Injectable()
 export class UsersService {
 
-  constructor(private readonly usersRepository: UsersRepository) {
+  constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly s3Service: S3Service,
+  ) {
   }
 
   async bcryptPassword(password: string) {
@@ -49,6 +54,15 @@ export class UsersService {
         ...updateUserInput,
       },
     });
+  }
+
+  async uploadImage(file: Buffer, userId: string) {
+    const bucket = USERS_BUCKET;
+    await this.s3Service.upload({
+      key: `${userId}.${USERS_IMAGE_FILE_EXTENSION}`,
+      bucket,
+      file,
+    })
   }
 
   async remove(_id: string) {
