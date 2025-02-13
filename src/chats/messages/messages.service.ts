@@ -7,7 +7,6 @@ import {GetMessagesArgs} from "./dto/get-message.args";
 import {PUB_SUB} from "../../common/constants/injection-token";
 import {PubSub} from "graphql-subscriptions";
 import {MESSAGE_CREATED} from "./constants/pubsub-triggers";
-import {MessageCreatedArgs} from "./dto/message-created.args";
 import {MessageDocument} from "./entities/message.document";
 import {UsersService} from "../../users/users.service";
 
@@ -46,11 +45,14 @@ export class MessagesService {
 		return message;
 	}
 
-	async getMessages({chatId}: GetMessagesArgs) {
+	async getMessages({chatId, limit, skip}: GetMessagesArgs) {
 		return this.ChatsRepository.model.aggregate([
 			{$match: {_id: new Types.ObjectId(chatId)}},
 			{$unwind: '$messages'},
 			{$replaceRoot: {newRoot: '$messages'}},
+			{ $sort: { createdAt: -1 } },
+			{$skip: skip},
+			{$limit: limit},
 			{
 				$lookup: {
 					from: 'users',
@@ -68,4 +70,16 @@ export class MessagesService {
 	async messageCreated() {
 		return this.pubSub.asyncIterableIterator(MESSAGE_CREATED);
 	}
+
+	async countMessages(chatId: string) {
+		return (
+			await this.ChatsRepository.model.aggregate([
+			{$match: {_id: new Types.ObjectId(chatId)}},
+			{$unwind: '$messages'},
+			{$count: '$messages'}
+		])
+		)[0];
+
+	}
+
 }

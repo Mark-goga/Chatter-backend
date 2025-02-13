@@ -69,7 +69,9 @@ export class ChatsService {
   async findOne(_id: string) {
     const chats = await this.findMany([
       {$match: {_id: new Types.ObjectId(_id)}}
-    ]);
+      ],
+      {skip: 0, limit: 1}
+    );
     if (!chats[0]) {
       throw new NotFoundException(`No chats was found with _id ${_id}`);
     }
