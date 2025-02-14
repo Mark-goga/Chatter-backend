@@ -39,8 +39,8 @@ export class UsersService {
 
   async findAll() {
     const users = await this.usersRepository.find({});
-    return await Promise.all(users.map(
-      async (user) => await this.toEntity(user))
+    return users.map(
+      (user) => this.toEntity(user)
     );
   }
 
@@ -69,7 +69,7 @@ export class UsersService {
       file,
     });
 
-    return await this.s3Service.getSignedUrlPhoto({bucket, key})
+    return this.s3Service.getObjectUrl({bucket, key})
   }
 
   async remove(_id: string) {
@@ -88,10 +88,10 @@ export class UsersService {
     return this.toEntity(user);
   }
 
-  async toEntity(userDocument: Omit<UserDocument, 'password'>): Promise<User> {
+  toEntity(userDocument: Omit<UserDocument, 'password'>): User {
     const user = {
       ...userDocument,
-      imageUrl: await this.s3Service.getSignedUrlPhoto({
+      imageUrl: this.s3Service.getObjectUrl({
           bucket: USERS_BUCKET,
           key: this.getUserImage(userDocument._id.toHexString())
         })
